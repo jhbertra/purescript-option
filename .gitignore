@@ -17,6 +17,9 @@ bower_components
 .bower-registry
 .bower-tmp
 
+## Spago ##
+.spago
+
 ### Emacs ###
 # -*- mode: gitignore; -*-
 *~

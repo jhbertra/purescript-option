@@ -5,6 +5,7 @@ module HowTo.ProvideAnEasierAPIForDateTime
   ) where
 
 import Prelude
+
 import Data.Date as Data.Date
 import Data.Date.Component as Data.Date.Component
 import Data.DateTime as Data.DateTime
@@ -17,43 +18,44 @@ import Option as Option
 import Prim.Row as Prim.Row
 import Test.Spec as Test.Spec
 import Test.Spec.Assertions as Test.Spec.Assertions
+import Type.Proxy (Proxy(..))
 
-type Option
-  = ( day :: Int
-    , hour :: Int
-    , millisecond :: Int
-    , minute :: Int
-    , month :: Data.Date.Component.Month
-    , second :: Int
-    , year :: Int
-    )
+type Option =
+  ( day :: Int
+  , hour :: Int
+  , millisecond :: Int
+  , minute :: Int
+  , month :: Data.Date.Component.Month
+  , second :: Int
+  , year :: Int
+  )
 
-dateTime ::
-  forall record.
-  Option.FromRecord record () Option =>
-  Record record ->
-  Data.DateTime.DateTime
+dateTime
+  :: forall record
+   . Option.FromRecord record () Option
+  => Record record
+  -> Data.DateTime.DateTime
 dateTime record = Data.DateTime.DateTime date time
   where
   date :: Data.Date.Date
   date = Data.Date.canonicalDate year month day
     where
     day :: Data.Date.Component.Day
-    day = get (Data.Symbol.SProxy :: _ "day")
+    day = get (Proxy :: _ "day")
 
     month :: Data.Date.Component.Month
-    month = Option.getWithDefault bottom (Data.Symbol.SProxy :: _ "month") options
+    month = Option.getWithDefault bottom (Proxy :: _ "month") options
 
     year :: Data.Date.Component.Year
-    year = get (Data.Symbol.SProxy :: _ "year")
+    year = get (Proxy :: _ "year")
 
-  get ::
-    forall label proxy record' value.
-    Data.Enum.BoundedEnum value =>
-    Data.Symbol.IsSymbol label =>
-    Prim.Row.Cons label Int record' Option =>
-    proxy label ->
-    value
+  get
+    :: forall label proxy record' value
+     . Data.Enum.BoundedEnum value
+    => Data.Symbol.IsSymbol label
+    => Prim.Row.Cons label Int record' Option
+    => proxy label
+    -> value
   get proxy = case Option.get proxy options of
     Data.Maybe.Just x -> Data.Enum.toEnumWithDefaults bottom top x
     Data.Maybe.Nothing -> bottom
@@ -65,16 +67,16 @@ dateTime record = Data.DateTime.DateTime date time
   time = Data.Time.Time hour minute second millisecond
     where
     hour :: Data.Time.Component.Hour
-    hour = get (Data.Symbol.SProxy :: _ "hour")
+    hour = get (Proxy :: _ "hour")
 
     minute :: Data.Time.Component.Minute
-    minute = get (Data.Symbol.SProxy :: _ "minute")
+    minute = get (Proxy :: _ "minute")
 
     millisecond :: Data.Time.Component.Millisecond
-    millisecond = get (Data.Symbol.SProxy :: _ "millisecond")
+    millisecond = get (Proxy :: _ "millisecond")
 
     second :: Data.Time.Component.Second
-    second = get (Data.Symbol.SProxy :: _ "second")
+    second = get (Proxy :: _ "second")
 
 spec :: Test.Spec.Spec Unit
 spec =
